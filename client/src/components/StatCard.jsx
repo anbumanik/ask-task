@@ -1,6 +1,6 @@
 import React from 'react';
 
-const StatCard = ({ title, value, icon: Icon, colorClass, delayClass }) => {
+const StatCard = React.memo(({ title, value, icon: Icon, colorClass, delayClass }) => {
   return (
     <div
       className={`glass-card relative overflow-hidden rounded-2xl p-6 shadow-lg border border-slate-800/40 hover:shadow-brand-500/5 ${delayClass}`}
@@ -26,6 +26,8 @@ const StatCard = ({ title, value, icon: Icon, colorClass, delayClass }) => {
       <div className={`absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r ${colorClass}`}></div>
     </div>
   );
-};
+});
+
+StatCard.displayName = 'StatCard';
 
 export default StatCard;

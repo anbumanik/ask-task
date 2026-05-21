@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import axios from 'axios';
@@ -73,7 +73,7 @@ const EmployeeDashboard = () => {
   }, []);
 
   // Save edited profile
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     setSaving(true);
     try {
       const { data } = await axios.put(`${API}/api/profile/update`, editForm, { headers });
@@ -85,10 +85,10 @@ const EmployeeDashboard = () => {
     } finally {
       setSaving(false);
     }
-  };
+  }, [editForm, headers, addToast]);
 
   // Upload profile image
-  const handleImageUpload = async (e) => {
+  const handleImageUpload = useCallback(async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) {
@@ -109,7 +109,7 @@ const EmployeeDashboard = () => {
     } finally {
       setUploading(false);
     }
-  };
+  }, [headers, addToast]);
 
   if (loading) {
     return (

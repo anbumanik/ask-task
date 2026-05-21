@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { X, UserPlus, Edit, Save, Briefcase, Tag, Mail, User, Calendar, Activity, ChevronDown, Info } from 'lucide-react';
 
 const DEPARTMENTS = [
@@ -17,13 +17,15 @@ const STATUS_OPTIONS = ['Active', 'Inactive'];
 
 /* ── Reusable field components (defined OUTSIDE to prevent re-render focus loss) ── */
 
-const FieldLabel = ({ children }) => (
+const FieldLabel = React.memo(({ children }) => (
   <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
     {children}
   </label>
-);
+));
 
-const TextField = ({ id, name, type = 'text', value, onChange, placeholder, Icon, error }) => (
+FieldLabel.displayName = 'FieldLabel';
+
+const TextField = React.memo(({ id, name, type = 'text', value, onChange, placeholder, Icon, error }) => (
   <div>
     <FieldLabel>{name === 'name' ? 'Full Name' : name === 'email' ? 'Email Address' : name}</FieldLabel>
     <div className="relative">
@@ -47,9 +49,11 @@ const TextField = ({ id, name, type = 'text', value, onChange, placeholder, Icon
     </div>
     {error && <p className="mt-1 text-xs font-medium text-rose-400">{error}</p>}
   </div>
-);
+));
 
-const SelectField = ({ id, name, label, value, onChange, options, placeholder, Icon, error }) => (
+TextField.displayName = 'TextField';
+
+const SelectField = React.memo(({ id, name, label, value, onChange, options, placeholder, Icon, error }) => (
   <div>
     <FieldLabel>{label}</FieldLabel>
     <div className="relative">
@@ -78,7 +82,9 @@ const SelectField = ({ id, name, label, value, onChange, options, placeholder, I
     </div>
     {error && <p className="mt-1 text-xs font-medium text-rose-400">{error}</p>}
   </div>
-);
+));
+
+SelectField.displayName = 'SelectField';
 
 /* ─────────────────────────────────────────────────────────────────── */
 
@@ -115,13 +121,13 @@ const EmployeeModal = ({ isOpen, onClose, onSubmit, employee = null, isLoading =
 
   if (!isOpen) return null;
 
-  const handleChange = (e) => {
+  const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
-  };
+  }, [errors]);
 
-  const validate = () => {
+  const validate = useCallback(() => {
     const e = {};
     if (!formData.name.trim())                          e.name        = 'Full name is required';
     if (!formData.email.trim())                         e.email       = 'Email address is required';
@@ -132,9 +138,9 @@ const EmployeeModal = ({ isOpen, onClose, onSubmit, employee = null, isLoading =
     if (!formData.joiningDate)                          e.joiningDate = 'Joining date is required';
     setErrors(e);
     return Object.keys(e).length === 0;
-  };
+  }, [formData]);
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = useCallback((e) => {
     e.preventDefault();
     if (validate()) {
       // Auto-set password = lowercase name without spaces + "@12"
@@ -144,7 +150,7 @@ const EmployeeModal = ({ isOpen, onClose, onSubmit, employee = null, isLoading =
         : { ...formData, password: generatedPassword };
       onSubmit(submitData);
     }
-  };
+  }, [formData, validate, isEditMode, onSubmit]);
 
   const isEditMode = !!employee;
 

@@ -1,28 +1,28 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Menu, User, Calendar } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-const Navbar = ({ toggleSidebar }) => {
+const Navbar = React.memo(({ toggleSidebar }) => {
   const { user } = useAuth();
   const location = useLocation();
 
   // Get human readable title from route path
-  const getPageTitle = () => {
+  const getPageTitle = useCallback(() => {
     const path = location.pathname;
     if (path.startsWith('/dashboard')) return 'Dashboard Analytics';
     if (path.startsWith('/employees')) return 'Employee Directory';
     return 'Admin Panel';
-  };
+  }, [location.pathname]);
 
-  const getFormattedDate = () => {
+  const getFormattedDate = useCallback(() => {
     return new Date().toLocaleDateString('en-US', {
       weekday: 'short',
       year: 'numeric',
       month: 'short',
       day: 'numeric',
     });
-  };
+  }, []);
 
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-slate-800/40 glass-panel px-6">
@@ -62,6 +62,8 @@ const Navbar = ({ toggleSidebar }) => {
       </div>
     </header>
   );
-};
+});
+
+Navbar.displayName = 'Navbar';
 
 export default Navbar;

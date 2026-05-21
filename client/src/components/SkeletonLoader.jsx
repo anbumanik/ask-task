@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const CardSkeleton = () => {
+export const CardSkeleton = React.memo(() => {
   return (
     <div className="glass-card relative overflow-hidden rounded-2xl p-6 border border-slate-805/40 animate-pulse">
       <div className="flex items-center justify-between">
@@ -13,9 +13,11 @@ export const CardSkeleton = () => {
       <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-slate-800"></div>
     </div>
   );
-};
+});
 
-export const TableSkeleton = ({ rows = 5, cols = 6 }) => {
+CardSkeleton.displayName = 'CardSkeleton';
+
+export const TableSkeleton = React.memo(({ rows = 5, cols = 6 }) => {
   return (
     <div className="w-full overflow-hidden rounded-2xl border border-slate-800/40 bg-slate-900/10 backdrop-blur-md animate-pulse">
       {/* Table Header skeleton */}
@@ -59,9 +61,11 @@ export const TableSkeleton = ({ rows = 5, cols = 6 }) => {
       </div>
     </div>
   );
-};
+});
 
-export const ChartSkeleton = () => {
+TableSkeleton.displayName = 'TableSkeleton';
+
+export const ChartSkeleton = React.memo(() => {
   return (
     <div className="glass-card rounded-2xl p-6 border border-slate-800/40 animate-pulse space-y-4">
       <div className="h-5 w-40 rounded bg-slate-800"></div>
@@ -75,4 +79,6 @@ export const ChartSkeleton = () => {
       </div>
     </div>
   );
-};
+});
+
+ChartSkeleton.displayName = 'ChartSkeleton';

@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, Users, LogOut, X, Shield } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-const Sidebar = ({ isOpen, toggleSidebar }) => {
+const Sidebar = React.memo(({ isOpen, toggleSidebar }) => {
   const { logout, user } = useAuth();
 
   const links = [
@@ -12,7 +12,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   ];
 
   // Helper to extract name initials
-  const getInitials = (name) => {
+  const getInitials = useCallback((name) => {
     if (!name) return 'AD';
     return name
       .split(' ')
@@ -20,7 +20,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       .join('')
       .substring(0, 2)
       .toUpperCase();
-  };
+  }, []);
 
   return (
     <>
@@ -104,6 +104,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       </aside>
     </>
   );
-};
+});
+
+Sidebar.displayName = 'Sidebar';
 
 export default Sidebar;

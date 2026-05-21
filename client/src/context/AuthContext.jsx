@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useMemo } from 'react';
 import axios from 'axios';
 
 const AuthContext = createContext(null);
@@ -68,7 +68,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{
+      value={useMemo(() => ({
         user,
         token,
         isAuthenticated,
@@ -77,7 +77,7 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         setError,
-      }}
+      }), [user, token, isAuthenticated, loading, error, login, logout, setError])}
     >
       {children}
     </AuthContext.Provider>

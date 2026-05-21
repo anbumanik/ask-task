@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
 import { UserPlus, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import axios from 'axios';
 
 /* ─── Defined OUTSIDE Register so it never gets recreated on re-render ─── */
-const InputField = ({ label, name, type, placeholder, Icon, value, onChange, error }) => (
+const InputField = React.memo(({ label, name, type, placeholder, Icon, value, onChange, error }) => (
   <div>
     <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
       {label}
@@ -32,9 +32,9 @@ const InputField = ({ label, name, type, placeholder, Icon, value, onChange, err
     </div>
     {error && <p className="mt-1 text-xs font-medium text-rose-400">{error}</p>}
   </div>
-);
+));
 
-
+InputField.displayName = 'InputField';
 
 /* ─────────────────────────────────────────────────────────────────────────── */
 
@@ -51,11 +51,11 @@ const Register = () => {
   const { addToast } = useToast();
   const navigate     = useNavigate();
 
-  const handleChange = (e) => {
+  const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setForm(p => ({ ...p, [name]: value }));
     if (errors[name]) setErrors(p => ({ ...p, [name]: '' }));
-  };
+  }, [errors]);
 
   const validate = () => {
     const e = {};
@@ -68,7 +68,7 @@ const Register = () => {
     return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     if (!validate()) return;
     setLoading(true);
@@ -85,7 +85,7 @@ const Register = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [form, addToast, navigate]);
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0f1117] p-4 py-10">
@@ -109,7 +109,7 @@ const Register = () => {
 
           {/* Employee Name */}
           <InputField
-            label="Employee Name"
+            label="user Name"
             name="name"
             placeholder="Enter your full name (e.g. John Doe)"
             Icon={UserPlus}

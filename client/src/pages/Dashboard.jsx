@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import api from '../services/api';
 import StatCard from '../components/StatCard';
 import { CardSkeleton, ChartSkeleton } from '../components/SkeletonLoader';
@@ -31,7 +31,7 @@ import {
 // Harmony colors for glassmorphic charts
 const COLORS = ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#06b6d4'];
 
-const CustomTooltip = ({ active, payload, label }) => {
+const CustomTooltip = React.memo(({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
       <div
@@ -50,14 +50,14 @@ const CustomTooltip = ({ active, payload, label }) => {
     );
   }
   return null;
-};
+});
+
+CustomTooltip.displayName = 'CustomTooltip';
 
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { addToast } = useToast();
-
-  const fetchStats = async () => {
+  const { addToast } useCallback(async () => {
     try {
       setLoading(true);
       const response = await api.get('/employees/stats');
@@ -68,9 +68,11 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [addToast]);
 
   useEffect(() => {
+    fetchStats();
+  }, [fetchStatsffect(() => {
     fetchStats();
   }, []);
 
@@ -109,11 +111,11 @@ const Dashboard = () => {
   }
 
   // Calculate highest staffing department
-  const getTopDepartment = () => {
+  const getTopDepartment = useCallback(() => {
     if (!stats.departmentStats || stats.departmentStats.length === 0) return 'None';
     const top = [...stats.departmentStats].sort((a, b) => b.count - a.count)[0];
     return `${top.department} (${top.count})`;
-  };
+  }, [stats]);
 
   return (
     <div className="space-y-6">

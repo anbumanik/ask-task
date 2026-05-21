@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
 import axios from 'axios';
 import useDebounce from '../hooks/useDebounce';
@@ -20,6 +20,7 @@ import {
   Layers,
   ToggleLeft,
   ToggleRight,
+  AlertTriangle,
 } from 'lucide-react';
 
 const DEPARTMENTS = ['All', 'Engineering', 'Marketing', 'Human Resources', 'Sales', 'Finance', 'Design'];
@@ -38,6 +39,7 @@ const EmployeeList = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalEmployees, setTotalEmployees] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   // Modals state
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -49,9 +51,10 @@ const EmployeeList = () => {
   const debouncedSearch = useDebounce(search, 400);
 
   // Fetch employees on filter/page updates
-  const fetchEmployees = async () => {
+  const fetchEmployees = useCallback(async () => {
     try {
       setLoading(true);
+      setError(false);
       const params = {
         page,
         limit,
@@ -65,15 +68,16 @@ const EmployeeList = () => {
       setTotalEmployees(response.data.total);
     } catch (error) {
       console.error('Error loading employee catalog:', error);
+      setError(true);
       addToast('Failed to fetch employee list.', 'error');
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, debouncedSearch, department, status, limit, addToast]);
 
   useEffect(() => {
     fetchEmployees();
-  }, [page, debouncedSearch, department, status]);
+  }, [fetchEmployees]);
 
   // Reset page to 1 on search or filter change
   useEffect(() => {
@@ -81,7 +85,7 @@ const EmployeeList = () => {
   }, [debouncedSearch, department, status]);
 
   // CRUD operation: Create or Update
-  const handleFormSubmit = async (formData) => {
+  const handleFormSubmit = useCallback(async (formData) => {
     setActionLoading(true);
     try {
       if (selectedEmployee) {
@@ -109,10 +113,10 @@ const EmployeeList = () => {
     } finally {
       setActionLoading(false);
     }
-  };
+  }, [selectedEmployee, addToast, fetchEmployees]);
 
   // CRUD operation: Delete
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = useCallback(async () => {
     if (!selectedEmployee) return;
     setActionLoading(true);
     try {
@@ -126,22 +130,22 @@ const EmployeeList = () => {
     } finally {
       setActionLoading(false);
     }
-  };
+  }, [selectedEmployee, addToast, fetchEmployees]);
 
-  const handleEditClick = (employee) => {
+  const handleEditClick = useCallback((employee) => {
     setSelectedEmployee(employee);
     setIsFormOpen(true);
-  };
+  }, []);
 
-  const handleDeleteClick = (employee) => {
+  const handleDeleteClick = useCallback((employee) => {
     setSelectedEmployee(employee);
     setIsConfirmOpen(true);
-  };
+  }, []);
 
-  const handleAddClick = () => {
+  const handleAddClick = useCallback(() => {
     setSelectedEmployee(null);
     setIsFormOpen(true);
-  };
+  }, []);
 
   // Quick toggle Active / Inactive
   const handleToggleStatus = async (emp) => {
@@ -229,14 +233,35 @@ const EmployeeList = () => {
 
       {/* Main Listing Grid */}
       {loading ? (
-        <TableSkeleton rows={limit} cols={6} />
+        /* Loading Spinner */
+        <div className="glass-panel rounded-2xl p-16 flex flex-col items-center justify-center border border-slate-800/40">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-700 border-t-brand-500 mb-4"></div>
+          <p className="text-sm font-semibold text-slate-400">Loading employees...</p>
+        </div>
+      ) : error ? (
+        /* Error State */
+        <div className="glass-panel rounded-2xl p-12 text-center border border-rose-500/20 bg-rose-500/5 flex flex-col items-center justify-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-400 border border-rose-500/20">
+            <AlertTriangle size={30} />
+          </div>
+          <h4 className="mt-4 text-md font-bold text-white">Error loading data</h4>
+          <p className="mt-2 text-sm text-slate-400 max-w-sm">
+            Something went wrong while fetching the employee list. Please try again.
+          </p>
+          <button
+            onClick={fetchEmployees}
+            className="mt-5 rounded-xl bg-slate-800 px-4 py-2.5 text-xs font-bold text-white hover:bg-slate-700 transition-all border border-slate-700 cursor-pointer"
+          >
+            Retry
+          </button>
+        </div>
       ) : employees.length === 0 ? (
         /* Empty State UI */
         <div className="glass-panel rounded-2xl p-12 text-center border border-slate-800/40 flex flex-col items-center justify-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-900/60 text-slate-500 border border-slate-800">
             <User size={30} />
           </div>
-          <h4 className="mt-4 text-md font-bold text-white">No Employees Registered</h4>
+          <h4 className="mt-4 text-md font-bold text-white">No employees found</h4>
           <p className="mt-2 text-sm text-slate-400 max-w-sm">
             There are no employees matching the current search parameters. Clear the filters or register a new profile.
           </p>

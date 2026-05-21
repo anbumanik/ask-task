@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -20,7 +20,7 @@ const Login = () => {
     if (isAuthenticated) navigate('/dashboard');
   }, [isAuthenticated, navigate]);
 
-  const validate = () => {
+  const validate = useCallback(() => {
     const errors = {};
     if (!email)                           errors.email    = 'Email address is required';
     else if (!/\S+@\S+\.\S+/.test(email)) errors.email    = 'Please enter a valid email address';
@@ -28,23 +28,22 @@ const Login = () => {
     else if (password.length < 6)         errors.password = 'Password must be at least 6 characters';
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
-  };
+  }, [email, password]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     if (!validate()) return;
     setIsSubmitting(true);
     try {
       const userData = await login(email, password);
       addToast('Logged in successfully! Welcome back.', 'success');
-      // Navigate to unified admin dashboard
       navigate('/dashboard');
     } catch (err) {
       addToast(err.message || 'Invalid email or password.', 'error');
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [email, password, validate, login, addToast, navigate]);
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0f1117] p-4">
@@ -85,10 +84,10 @@ const Login = () => {
                 type="email"
                 value={email}
                 onChange={(e) => {
+                  setEmailuseCallback((e) => {
                   setEmail(e.target.value);
                   if (formErrors.email) setFormErrors(p => ({ ...p, email: '' }));
-                }}
-                placeholder="Enter your email"
+                }, [formErrors.email])laceholder="Enter your email"
                 className={`w-full rounded-xl border py-3 pl-10 pr-4 text-sm text-white placeholder-slate-500 bg-white/5 backdrop-blur transition focus:outline-none focus:ring-2 ${
                   formErrors.email
                     ? 'border-rose-500 focus:ring-rose-500/30'

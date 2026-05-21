@@ -1,7 +1,7 @@
 import React from 'react';
 import { AlertTriangle } from 'lucide-react';
 
-const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message, isLoading = false }) => {
+const ConfirmModal = React.memo(({ isOpen, onClose, onConfirm, title, message, isLoading = false }) => {
   if (!isOpen) return null;
 
   return (
@@ -55,6 +55,8 @@ const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message, isLoading = 
       </div>
     </div>
   );
-};
+});
+
+ConfirmModal.displayName = 'ConfirmModal';
 
 export default ConfirmModal;
