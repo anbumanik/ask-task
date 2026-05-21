@@ -57,7 +57,9 @@ CustomTooltip.displayName = 'CustomTooltip';
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { addToast } useCallback(async () => {
+  const { addToast } = useToast();
+
+  const fetchStats = useCallback(async () => {
     try {
       setLoading(true);
       const response = await api.get('/employees/stats');
@@ -72,9 +74,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchStats();
-  }, [fetchStatsffect(() => {
-    fetchStats();
-  }, []);
+  }, [fetchStats]);
 
   if (loading) {
     return (

@@ -84,10 +84,10 @@ const Login = () => {
                 type="email"
                 value={email}
                 onChange={(e) => {
-                  setEmailuseCallback((e) => {
                   setEmail(e.target.value);
                   if (formErrors.email) setFormErrors(p => ({ ...p, email: '' }));
-                }, [formErrors.email])laceholder="Enter your email"
+                }}
+                placeholder="Enter your email"
                 className={`w-full rounded-xl border py-3 pl-10 pr-4 text-sm text-white placeholder-slate-500 bg-white/5 backdrop-blur transition focus:outline-none focus:ring-2 ${
                   formErrors.email
                     ? 'border-rose-500 focus:ring-rose-500/30'
