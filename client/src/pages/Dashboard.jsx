@@ -111,11 +111,11 @@ const Dashboard = () => {
   }
 
   // Calculate highest staffing department
-  const getTopDepartment = useCallback(() => {
-    if (!stats.departmentStats || stats.departmentStats.length === 0) return 'None';
+  const getTopDepartment = () => {
+    if (!stats || !stats.departmentStats || stats.departmentStats.length === 0) return 'None';
     const top = [...stats.departmentStats].sort((a, b) => b.count - a.count)[0];
     return `${top.department} (${top.count})`;
-  }, [stats]);
+  };
 
   return (
     <div className="space-y-6">
