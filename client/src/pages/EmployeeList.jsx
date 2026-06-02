@@ -94,10 +94,12 @@ const EmployeeList = () => {
         addToast(`Successfully updated ${response.data.name}'s profile.`, 'success');
       } else {
         // ── Add Mode: call /api/auth/register to create User login + Employee record ──
+        // Auto-generate password: lowercase name (no spaces) + "@12"
+        const autoPassword = formData.name.trim().toLowerCase().replace(/\s+/g, '') + '@12';
         const response = await axios.post('http://localhost:5000/api/auth/register', {
           name:        formData.name,
           email:       formData.email,
-          password:    formData.password,
+          password:    autoPassword,
           department:  formData.department,
           designation: formData.designation,
           joiningDate: formData.joiningDate,
@@ -277,30 +279,30 @@ const EmployeeList = () => {
         /* Table UI */
         <div className="glass-panel rounded-2xl border border-slate-800/40 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[800px] border-collapse text-left text-sm text-slate-300">
+            <table className="w-full min-w-[600px] border-collapse text-left text-sm text-slate-300">
               <thead>
                 <tr className="border-b border-slate-800/60 bg-slate-900/40 text-xs font-bold uppercase tracking-wider text-slate-400">
-                  <th className="px-6 py-4">Employee</th>
-                  <th className="px-6 py-4">Department</th>
-                  <th className="px-6 py-4">Designation</th>
-                  <th className="px-6 py-4">Joining Date</th>
-                  <th className="px-6 py-4">Status</th>
-                  <th className="px-6 py-4 text-center">Actions</th>
+                  <th className="px-3 md:px-6 py-4">Employee</th>
+                  <th className="px-3 md:px-6 py-4">Department</th>
+                  <th className="hidden lg:table-cell px-3 md:px-6 py-4">Designation</th>
+                  <th className="hidden md:table-cell px-3 md:px-6 py-4">Joining Date</th>
+                  <th className="px-3 md:px-6 py-4">Status</th>
+                  <th className="px-3 md:px-6 py-4 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/30">
                 {employees.map((emp) => (
                   <tr key={emp._id} className="hover:bg-slate-900/20 transition-colors">
                     {/* Employee Profile Cell */}
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-500/10 font-bold text-brand-400 text-sm border border-brand-500/20">
+                    <td className="px-3 md:px-6 py-4">
+                      <div className="flex items-center gap-2 md:gap-3">
+                        <div className="flex h-8 w-8 md:h-9 md:w-9 shrink-0 items-center justify-center rounded-full bg-brand-500/10 font-bold text-brand-400 text-sm border border-brand-500/20">
                           {emp.name.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase()}
                         </div>
-                        <div>
-                          <div className="font-semibold text-white">{emp.name}</div>
-                          <div className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
-                            <Mail size={11} />
+                        <div className="min-w-0">
+                          <div className="font-semibold text-white truncate max-w-[120px] md:max-w-none">{emp.name}</div>
+                          <div className="text-xs text-slate-400 flex items-center gap-1 mt-0.5 truncate max-w-[120px] md:max-w-none">
+                            <Mail size={11} className="shrink-0" />
                             {emp.email}
                           </div>
                         </div>
@@ -308,69 +310,69 @@ const EmployeeList = () => {
                     </td>
 
                     {/* Department Cell */}
-                    <td className="px-6 py-4">
-                      <span className="inline-flex items-center gap-1 rounded-lg bg-slate-900/40 px-2.5 py-1 text-xs font-medium text-slate-300 border border-slate-800/40">
+                    <td className="px-3 md:px-6 py-4">
+                      <span className="inline-flex items-center gap-1 rounded-lg bg-slate-900/40 px-2 md:px-2.5 py-1 text-xs font-medium text-slate-300 border border-slate-800/40 truncate max-w-[90px] md:max-w-none">
                         {emp.department}
                       </span>
                     </td>
 
-                    {/* Designation Cell */}
-                    <td className="px-6 py-4 font-medium text-slate-200">{emp.designation}</td>
+                    {/* Designation Cell — hidden on tablet */}
+                    <td className="hidden lg:table-cell px-3 md:px-6 py-4 font-medium text-slate-200">{emp.designation}</td>
 
-                    {/* Joining Date Cell */}
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-1 text-xs text-slate-450">
+                    {/* Joining Date Cell — hidden on mobile, shown on md+ */}
+                    <td className="hidden md:table-cell px-3 md:px-6 py-4">
+                      <div className="flex items-center gap-1 text-xs text-slate-450 whitespace-nowrap">
                         <Calendar size={12} className="text-slate-500" />
                         {formatDate(emp.joiningDate)}
                       </div>
                     </td>
 
                     {/* Status Cell */}
-                    <td className="px-6 py-4">
+                    <td className="px-3 md:px-6 py-4">
                       <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold leading-5 border
+                        className={`inline-flex items-center rounded-full px-2 md:px-2.5 py-0.5 text-xs font-semibold leading-5 border
                           ${
                             emp.status === 'Active'
                               ? 'bg-emerald-500/5 text-emerald-400 border-emerald-500/20'
                               : 'bg-slate-950/20 text-slate-400 border-slate-800'
                           }`}
                       >
-                        <span className={`mr-1.5 h-1.5 w-1.5 rounded-full ${emp.status === 'Active' ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`}></span>
-                        {emp.status}
+                        <span className={`mr-1 md:mr-1.5 h-1.5 w-1.5 rounded-full ${emp.status === 'Active' ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`}></span>
+                        <span className="hidden sm:inline">{emp.status}</span>
                       </span>
                     </td>
 
                     {/* Actions Cell */}
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-center gap-2">
-                        {/* Quick Activate / Deactivate toggle */}
+                    <td className="px-2 md:px-6 py-4">
+                      <div className="flex items-center justify-center gap-1 md:gap-2">
+                        {/* Quick Activate / Deactivate toggle — icon-only on tablet */}
                         <button
                           onClick={() => handleToggleStatus(emp)}
                           title={emp.status === 'Active' ? 'Deactivate' : 'Activate'}
-                          className={`flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold border transition-all cursor-pointer ${
+                          className={`flex items-center gap-1 rounded-lg px-1.5 md:px-2 py-1 text-xs font-semibold border transition-all cursor-pointer ${
                             emp.status === 'Active'
                               ? 'text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/10'
                               : 'text-slate-400 border-slate-600/40 hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/30'
                           }`}
                         >
                           {emp.status === 'Active'
-                            ? <><ToggleRight size={15} /> Active</>
-                            : <><ToggleLeft size={15} /> Inactive</>}
+                            ? <><ToggleRight size={15} /><span className="hidden xl:inline"> Active</span></>
+                            : <><ToggleLeft size={15} /><span className="hidden xl:inline"> Inactive</span></>}
                         </button>
 
                         <button
                           onClick={() => handleEditClick(emp)}
-                          className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-850 hover:text-amber-400 hover:border-amber-500/20 border border-transparent transition-all cursor-pointer"
+                          className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-amber-400 hover:border-amber-500/20 border border-transparent transition-all cursor-pointer"
                           title="Edit Profile"
                         >
-                          <Edit size={15} />
+                          <Edit size={14} />
                         </button>
                         <button
                           onClick={() => handleDeleteClick(emp)}
-                          className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-850 hover:text-rose-400 hover:border-rose-500/20 border border-transparent transition-all cursor-pointer"
+                          className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-rose-400 hover:border-rose-500/20 border border-transparent transition-all cursor-pointer"
                           title="Delete Employee"
                         >
-                          <Trash2 size={15} />
+                          <Trash2 size={14} />
                         </button>
                       </div>
                     </td>
@@ -381,13 +383,13 @@ const EmployeeList = () => {
           </div>
 
           {/* Table Footer: Pagination controls */}
-          <div className="flex items-center justify-between border-t border-slate-800/40 bg-slate-950/20 px-6 py-4 text-xs font-semibold text-slate-400">
-            <div>
+          <div className="flex items-center justify-between border-t border-slate-800/40 bg-slate-950/20 px-3 md:px-6 py-4 text-xs font-semibold text-slate-400 gap-2">
+            <div className="hidden sm:block shrink-0">
               Showing <span className="text-slate-200">{(page - 1) * limit + 1}</span> to{' '}
               <span className="text-slate-200">
                 {Math.min(page * limit, totalEmployees)}
               </span>{' '}
-              of <span className="text-slate-200">{totalEmployees}</span> employee records
+              of <span className="text-slate-200">{totalEmployees}</span> records
             </div>
 
             <div className="flex items-center gap-1.5">

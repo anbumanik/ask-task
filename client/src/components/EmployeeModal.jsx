@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { X, UserPlus, Edit, Save, Briefcase, Tag, Mail, User, Calendar, Activity, ChevronDown, Info } from 'lucide-react';
+import { X, UserPlus, Edit, Save, Briefcase, Tag, Mail, User, Calendar, Activity, ChevronDown } from 'lucide-react';
 
 const DEPARTMENTS = [
   'Engineering', 'Design', 'Marketing', 'Sales',
@@ -119,7 +119,7 @@ const EmployeeModal = ({ isOpen, onClose, onSubmit, employee = null, isLoading =
     setErrors({});
   }, [employee, isOpen]);
 
-  if (!isOpen) return null;
+  const isEditMode = !!employee;
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -143,16 +143,11 @@ const EmployeeModal = ({ isOpen, onClose, onSubmit, employee = null, isLoading =
   const handleFormSubmit = useCallback((e) => {
     e.preventDefault();
     if (validate()) {
-      // Auto-set password = lowercase name without spaces + "@12"
-      const generatedPassword = formData.name.trim().toLowerCase().replace(/\s+/g, '') + '@12';
-      const submitData = isEditMode
-        ? formData
-        : { ...formData, password: generatedPassword };
-      onSubmit(submitData);
+      onSubmit(formData);
     }
-  }, [formData, validate, isEditMode, onSubmit]);
+  }, [formData, validate, onSubmit]);
 
-  const isEditMode = !!employee;
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -219,19 +214,7 @@ const EmployeeModal = ({ isOpen, onClose, onSubmit, employee = null, isLoading =
               error={errors.email}
             />
 
-            {/* Auto-password info banner (only for new employee) */}
-            {!isEditMode && formData.name.trim() && (
-              <div className="flex items-start gap-2.5 rounded-xl border border-[#4F46E5]/30 bg-[#4F46E5]/10 px-4 py-3">
-                <Info size={15} className="mt-0.5 shrink-0 text-[#818cf8]" />
-                <div className="text-xs text-slate-300">
-                  <span className="font-semibold text-white">Default password: </span>
-                  <span className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-[#818cf8]">
-                    {formData.name.trim().toLowerCase().replace(/\s+/g, '')}@12
-                  </span>
-                  <span className="ml-1 text-slate-400">(no spaces). They can change it later.</span>
-                </div>
-              </div>
-            )}
+
 
             {/* Department & Designation */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
